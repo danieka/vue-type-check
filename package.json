@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Yuyz0112/vue-type-check.git"
+    "url": "git@github.com:danieka/vue-type-check.git"
   },
   "keywords": [
     "vue",
