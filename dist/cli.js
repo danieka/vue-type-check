@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(require("path"));
 const minimist_1 = __importDefault(require("minimist"));
 const index_1 = require("./index");
-const { workspace, srcDir, onlyTemplate, onlyTypeScript, excludeDir, } = (0, minimist_1.default)(process.argv.slice(2));
+const { workspace, srcDir, onlyTemplate, onlyTypeScript, onlyScript, excludeDir, } = (0, minimist_1.default)(process.argv.slice(2));
 if (!workspace) {
     throw new Error("--workspace is required");
 }
@@ -37,4 +37,5 @@ const cwd = process.cwd();
     onlyTemplate,
     onlyTypeScript,
     excludeDir,
+    onlyScript,
 });

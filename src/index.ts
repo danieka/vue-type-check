@@ -22,7 +22,8 @@ interface Options {
   srcDir?: string;
   onlyTemplate?: boolean;
   onlyTypeScript?: boolean;
-  excludeDir?: string|string[];
+  excludeDir?: string | string[];
+  onlyScript?: boolean;
 }
 
 interface Source {
@@ -34,12 +35,18 @@ interface Source {
 let validLanguages = ["vue"];
 
 export async function check(options: Options) {
-  const { workspace, onlyTemplate = false, onlyTypeScript = false, excludeDir } = options;
+  const {
+    workspace,
+    onlyTemplate = false,
+    onlyTypeScript = false,
+    excludeDir,
+  } = options;
   if (onlyTypeScript) {
     validLanguages = ["ts", "tsx", "vue"];
   }
   const srcDir = options.srcDir || options.workspace;
-  const excludeDirs = typeof excludeDir === "string" ? [excludeDir] : excludeDir;
+  const excludeDirs =
+    typeof excludeDir === "string" ? [excludeDir] : excludeDir;
   const docs = await traverse(srcDir, onlyTypeScript, excludeDirs);
 
   await getDiagnostics({ docs, workspace, onlyTemplate });
@@ -59,8 +66,8 @@ async function traverse(
 
   if (excludeDirs) {
     const filterTargets = excludeDirs.map((dir) => path.resolve(dir)).join("|");
-    targetFiles = targetFiles.filter((targetFile) =>
-      !new RegExp(`^(?:${filterTargets}).*$`).test(targetFile)
+    targetFiles = targetFiles.filter(
+      (targetFile) => !new RegExp(`^(?:${filterTargets}).*$`).test(targetFile)
     );
   }
 
@@ -91,7 +98,7 @@ async function traverse(
   return docs;
 }
 
-async function getDiagnostics({ docs, workspace, onlyTemplate }: Source) {
+async function getDiagnostics({ docs, workspace }: Source) {
   const documentRegions = getLanguageModelCache(10, 60, (document) =>
     getVueDocumentRegions(document)
   );
@@ -106,7 +113,6 @@ async function getDiagnostics({ docs, workspace, onlyTemplate }: Source) {
       workspace,
       scriptRegionDocuments
     );
-    const vueMode = new VueInterpolationMode(tsModule, serviceHost);
     const scriptMode = await getJavascriptMode(
       serviceHost,
       scriptRegionDocuments as any,
@@ -118,12 +124,12 @@ async function getDiagnostics({ docs, workspace, onlyTemplate }: Source) {
       clear: true,
     });
     for (const doc of docs) {
-      const vueTplResults = vueMode.doValidation(doc);
       let scriptResults: Diagnostic[] = [];
-      if (!onlyTemplate && scriptMode.doValidation) {
+      if (scriptMode.doValidation) {
+        console.log("did the ts check");
         scriptResults = scriptMode.doValidation(doc);
       }
-      const results = vueTplResults.concat(scriptResults);
+      const results = scriptResults;
       if (results.length) {
         hasError = true;
         for (const result of results) {

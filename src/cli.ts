@@ -8,6 +8,7 @@ const {
   srcDir,
   onlyTemplate,
   onlyTypeScript,
+  onlyScript,
   excludeDir,
 } = minimist(process.argv.slice(2));
 
@@ -23,4 +24,5 @@ check({
   onlyTemplate,
   onlyTypeScript,
   excludeDir,
+  onlyScript,
 });

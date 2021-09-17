@@ -34,7 +34,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.check = void 0;
 const path = __importStar(require("path"));
 const vscode_languageserver_1 = require("vscode-languageserver");
-const interpolationMode_1 = require("vue-language-server/dist/modes/template/interpolationMode");
 const javascript_1 = require("vue-language-server/dist/modes/script/javascript");
 const serviceHost_1 = require("vue-language-server/dist/services/typescriptService/serviceHost");
 const languageModelCache_1 = require("vue-language-server/dist/embeddedSupport/languageModelCache");
@@ -46,7 +45,7 @@ const file_util_1 = require("./file-util");
 let validLanguages = ["vue"];
 function check(options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { workspace, onlyTemplate = false, onlyTypeScript = false, excludeDir } = options;
+        const { workspace, onlyTemplate = false, onlyTypeScript = false, excludeDir, } = options;
         if (onlyTypeScript) {
             validLanguages = ["ts", "tsx", "vue"];
         }
@@ -84,7 +83,7 @@ function traverse(root, onlyTypeScript, excludeDirs) {
         return docs;
     });
 }
-function getDiagnostics({ docs, workspace, onlyTemplate }) {
+function getDiagnostics({ docs, workspace }) {
     return __awaiter(this, void 0, void 0, function* () {
         const documentRegions = (0, languageModelCache_1.getLanguageModelCache)(10, 60, (document) => (0, embeddedSupport_1.getVueDocumentRegions)(document));
         const scriptRegionDocuments = (0, languageModelCache_1.getLanguageModelCache)(10, 60, (document) => {
@@ -94,7 +93,6 @@ function getDiagnostics({ docs, workspace, onlyTemplate }) {
         let hasError = false;
         try {
             const serviceHost = (0, serviceHost_1.getServiceHost)(typescript_1.default, workspace, scriptRegionDocuments);
-            const vueMode = new interpolationMode_1.VueInterpolationMode(typescript_1.default, serviceHost);
             const scriptMode = yield (0, javascript_1.getJavascriptMode)(serviceHost, scriptRegionDocuments, workspace);
             const bar = new progress_1.default("checking [:bar] :current/:total", {
                 total: docs.length,
@@ -102,12 +100,12 @@ function getDiagnostics({ docs, workspace, onlyTemplate }) {
                 clear: true,
             });
             for (const doc of docs) {
-                const vueTplResults = vueMode.doValidation(doc);
                 let scriptResults = [];
-                if (!onlyTemplate && scriptMode.doValidation) {
+                if (scriptMode.doValidation) {
+                    console.log("did the ts check");
                     scriptResults = scriptMode.doValidation(doc);
                 }
-                const results = vueTplResults.concat(scriptResults);
+                const results = scriptResults;
                 if (results.length) {
                     hasError = true;
                     for (const result of results) {
