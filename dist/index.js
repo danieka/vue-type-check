@@ -102,7 +102,6 @@ function getDiagnostics({ docs, workspace }) {
             for (const doc of docs) {
                 let scriptResults = [];
                 if (scriptMode.doValidation) {
-                    console.log("did the ts check");
                     scriptResults = scriptMode.doValidation(doc);
                 }
                 const results = scriptResults;

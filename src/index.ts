@@ -126,7 +126,6 @@ async function getDiagnostics({ docs, workspace }: Source) {
     for (const doc of docs) {
       let scriptResults: Diagnostic[] = [];
       if (scriptMode.doValidation) {
-        console.log("did the ts check");
         scriptResults = scriptMode.doValidation(doc);
       }
       const results = scriptResults;
